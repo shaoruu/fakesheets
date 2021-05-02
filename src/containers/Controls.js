@@ -17,19 +17,6 @@ const ControlsWrapper = styled.div`
 `;
 
 const RowsControlsWrapper = styled(ControlsWrapper)`
-  margin-left: calc(${ROWS_CONTROL_WIDTH} + ${CELL_WIDTH_INDICATOR});
-  height: ${ROWS_CONTROL_WIDTH};
-
-  & button {
-    height: 100%;
-    width: 40px;
-    border: 2px solid #bbb;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-  }
-`;
-
-const ColumnsControlsWrapper = styled(ControlsWrapper)`
   flex-direction: column;
   margin-top: calc(${ROWS_CONTROL_WIDTH} + ${CELL_HEIGHT});
   width: ${ROWS_CONTROL_WIDTH};
@@ -40,6 +27,19 @@ const ColumnsControlsWrapper = styled(ControlsWrapper)`
     border: 2px solid #bbb;
     border-left-width: 1px;
     border-right-width: 1px;
+  }
+`;
+
+const ColumnsControlsWrapper = styled(ControlsWrapper)`
+  margin-left: calc(${ROWS_CONTROL_WIDTH} + ${CELL_WIDTH_INDICATOR});
+  height: ${ROWS_CONTROL_WIDTH};
+
+  & button {
+    height: 100%;
+    width: 40px;
+    border: 2px solid #bbb;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
   }
 `;
 
