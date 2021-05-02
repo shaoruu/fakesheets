@@ -15,7 +15,9 @@ export const SheetDataContext = createContext({
   // data mutation
   setCell: () => {},
   addRow: () => {},
+  removeRow: () => {},
   addColumn: () => {},
+  removeColumn: () => {},
   addHighlight: () => {},
   removeHighlight: () => {},
   resetHighlight: () => {},
@@ -71,10 +73,11 @@ export const parseCellRep = (str) => {
 
 export const SheetDataProvider = (props) => {
   const [data, setData] = useState(defaultData);
-  const [rows, setRows] = useState(DEFAULT_ROWS_COUNT + 1);
-  const [columns, setColumns] = useState(DEFAULT_COLUMNS_COUNT + 1);
   const [highlighted, setHighlighted] = useState([]);
   const [focused, setFocused] = useState('');
+
+  const rows = data.length;
+  const columns = (data[0] || []).length;
 
   const setCell = (r, c, str) => {
     // setting rows and columns as string
@@ -85,26 +88,38 @@ export const SheetDataProvider = (props) => {
 
   const addRow = () => {
     const newData = clone(data);
-    const [r] = parseCellRep(focused || highlighted[0] || 'AAAAA_100000');
-
-    const [fr, fc] = parseCellRep(focused);
-    if (fr >= r) setFocus(fr + 1, fc);
+    const [r, c] = parseCellRep(focused || highlighted[0] || 'AAAAA_100000');
 
     newData.splice(r, 0, new Array(columns).fill(''));
     setData(newData);
-    setRows(rows + 1);
+    setFocus(r + 1, c, true);
+  };
+
+  const removeRow = () => {
+    const newData = clone(data);
+    const [r, c] = parseCellRep(focused || highlighted[0] || 'AAAAA_100000');
+
+    newData.splice(r, 1);
+    setData(newData);
+    setFocus(r - 1, c);
   };
 
   const addColumn = () => {
     const newData = clone(data);
-    const [, c] = parseCellRep(focused || highlighted[0] || 'AAAAA_100000');
-
-    const [fr, fc] = parseCellRep(focused);
-    if (fc >= c) setFocus(fr, fc + 1);
+    const [r, c] = parseCellRep(focused || highlighted[0] || 'AAAAA_100000');
 
     newData.forEach((row) => row.splice(c, 0, ''));
     setData(newData);
-    setColumns(columns + 1);
+    setFocus(r, c + 1, true);
+  };
+
+  const removeColumn = () => {
+    const newData = clone(data);
+    const [r, c] = parseCellRep(focused || highlighted[0] || 'AAAAA_100000');
+
+    newData.forEach((row) => row.splice(c, 1));
+    setData(newData);
+    setFocus(r, c - 1);
   };
 
   const addHighlight = (r, c) => {
@@ -115,7 +130,11 @@ export const SheetDataProvider = (props) => {
     setHighlighted(highlighted.filter((rep) => rep !== getCellRep(r, c)));
   };
 
-  const setFocus = (r, c) => {
+  const setFocus = (r, c, force = false) => {
+    if (!force) {
+      if (r < 1 || r >= rows) return;
+      if (c < 1 || c >= columns) return;
+    }
     setFocused(getCellRep(r, c));
   };
 
@@ -133,7 +152,9 @@ export const SheetDataProvider = (props) => {
         focused: parseCellRep(focused),
         setCell,
         addRow,
+        removeRow,
         addColumn,
+        removeColumn,
         addHighlight,
         removeHighlight,
         setFocus,

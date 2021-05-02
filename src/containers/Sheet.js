@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { ROWS_CONTROL_WIDTH } from '../configs';
 import useSheetData from '../hooks/useSheetData';
 import Row from './Row';
 
@@ -6,8 +7,9 @@ const SheetWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: fit-content;
-  border-right: solid 1px black;
-  border-bottom: solid 1px black;
+  border: solid 1px #555;
+  margin-left: ${ROWS_CONTROL_WIDTH};
+  margin-top: ${ROWS_CONTROL_WIDTH};
 `;
 
 const Sheet = () => {

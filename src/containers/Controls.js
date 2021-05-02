@@ -1,25 +1,55 @@
 import React from 'react';
 import styled from 'styled-components';
+import {
+  CELL_HEIGHT,
+  CELL_WIDTH_INDICATOR,
+  ROWS_CONTROL_WIDTH,
+} from '../configs';
 import useSheetData from '../hooks/useSheetData';
 
 const ControlsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: fixed;
-  bottom: 4px;
-  right: 4px;
-  background: #f8f9fa;
-  padding: 4px;
+  left: 0;
+  top: 0;
+`;
+
+const RowsControlsWrapper = styled(ControlsWrapper)`
+  margin-left: calc(${ROWS_CONTROL_WIDTH} + ${CELL_WIDTH_INDICATOR});
+  height: ${ROWS_CONTROL_WIDTH};
+
+  & button {
+    height: 100%;
+    width: 40px;
+    border: 2px solid #bbb;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+  }
+`;
+
+const ColumnsControlsWrapper = styled(ControlsWrapper)`
+  flex-direction: column;
+  margin-top: calc(${ROWS_CONTROL_WIDTH} + ${CELL_HEIGHT});
+  width: ${ROWS_CONTROL_WIDTH};
+
+  & button {
+    width: 100%;
+    height: 40px;
+    border: 2px solid #bbb;
+    border-left-width: 1px;
+    border-right-width: 1px;
+  }
 `;
 
 const ControlButton = styled.button`
-  margin: 0 4px;
-  padding: 4px;
   background: white;
   border: none;
   color: #666666;
   font-size: 1em;
   transition: background 0.2s linear;
   cursor: pointer;
-  border-radius: 3px;
 
   &:hover {
     background: #eee;
@@ -27,13 +57,19 @@ const ControlButton = styled.button`
 `;
 
 const Controls = () => {
-  const { addRow, addColumn } = useSheetData();
+  const { addRow, removeRow, addColumn, removeColumn } = useSheetData();
 
   return (
-    <ControlsWrapper>
-      <ControlButton onClick={addRow}>add row</ControlButton>
-      <ControlButton onClick={addColumn}>add column</ControlButton>
-    </ControlsWrapper>
+    <>
+      <RowsControlsWrapper>
+        <ControlButton onClick={addRow}>+</ControlButton>
+        <ControlButton onClick={removeRow}>-</ControlButton>
+      </RowsControlsWrapper>
+      <ColumnsControlsWrapper>
+        <ControlButton onClick={addColumn}>+</ControlButton>
+        <ControlButton onClick={removeColumn}>-</ControlButton>
+      </ColumnsControlsWrapper>
+    </>
   );
 };
 

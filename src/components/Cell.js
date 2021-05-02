@@ -1,29 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import {
+  CELL_HEIGHT,
+  CELL_WIDTH,
+  CELL_WIDTH_INDICATOR,
+  FOCUSED_BACKGROUND,
+  INDICATOR_BACKGROUND,
+  INDICATOR_BORDER,
+  INDICATOR_COLOR,
+  ORDINARY_BACKGROUND,
+  ORDINARY_BORDER,
+  ORDINARY_COLOR,
+} from '../configs';
 import useSheetData, { numberToAlphabet } from '../hooks/useSheetData';
 import InvisibleInput from './InvisibleInput';
-
-const ORDINARY_BACKGROUND = '#FFFFFF';
-const INDICATOR_BACKGROUND = '#F8F9FA';
-const FOCUSED_BACKGROUND = '#77acf155';
-
-const ORDINARY_BORDER = '#bbbbbb';
-const INDICATOR_BORDER = '#999999';
-
-const ORDINARY_COLOR = '#222222';
-const INDICATOR_COLOR = '#666666';
 
 const CellWrapper = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 6rem;
-  height: 1.6rem;
+  width: ${(p) => (p.isColIndicator ? CELL_WIDTH_INDICATOR : CELL_WIDTH)};
+  height: ${CELL_HEIGHT};
   font-size: 0.8rem;
   text-align: center;
   vertical-align: middle;
   overflow: hidden;
+  outline: none;
 
+  border-bottom: ${(p) => (p.isCorner ? '3px solid #aaa' : '')};
+  border-right: ${(p) => (p.isCorner ? '3px solid #aaa' : '')};
   border-top: solid 1px
     ${(p) => (p.isIndicator ? INDICATOR_BORDER : ORDINARY_BORDER)};
   border-left: solid 1px
@@ -38,6 +43,7 @@ const CellWrapper = styled.div`
 `;
 
 const Cell = ({ data, row, col }) => {
+  const wrapperRef = useRef(null);
   const { focused, setFocus, setCell } = useSheetData();
   const [isInput, setIsInput] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -64,28 +70,63 @@ const Cell = ({ data, row, col }) => {
     setIsInput(false);
   };
 
+  const startEditing = (value) => {
+    setIsInput(true);
+    setInputValue(value);
+  };
+
   useEffect(() => {
-    if (isInput) {
-      setInputValue(data);
+    if (wrapperRef.current && isFocused) {
+      wrapperRef.current.focus();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInput]);
+  }, [isFocused]);
 
   return (
     <CellWrapper
-      tabIndex="1" // for key press events
+      ref={wrapperRef}
+      tabIndex={isFocused ? '-1' : '0'} // for key press events
       onMouseDown={() => {
         if (!isIndicator) setFocus(row, col);
       }}
       onDoubleClick={() => {
-        if (!isIndicator) setIsInput(true);
+        if (!isIndicator) {
+          console.log(row, col);
+          setFocus(row, col);
+          startEditing(data);
+        }
       }}
       onKeyDown={(e) => {
         if (isInput) {
-          if (e.key === 'Enter') saveInput();
-        } else setIsInput(true);
+          if (e.key === 'Enter') {
+            saveInput();
+            setFocus(row + 1, col);
+          }
+        } else {
+          switch (e.key) {
+            case 'ArrowUp':
+              setFocus(row - 1, col);
+              break;
+            case 'ArrowDown':
+              setFocus(row + 1, col);
+              break;
+            case 'ArrowLeft':
+              setFocus(row, col - 1);
+              break;
+            case 'ArrowRight':
+              setFocus(row, col + 1);
+              break;
+            case 'Enter':
+              startEditing(data);
+              break;
+            default:
+              startEditing('');
+              break;
+          }
+        }
       }}
       isCorner={isCorner}
+      isColIndicator={isColIndicator}
       isIndicator={isIndicator}
       isFocused={isFocused}
     >
